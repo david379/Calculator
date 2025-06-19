@@ -114,6 +114,53 @@ class Program
                 return sign * val;
             }
 
+            if (char.IsLetter(Peek()))
+            {
+                string func = ParseIdentifier();
+                if (!Match('(')) throw new Exception($"Expected '(' after function name '{func}'");
+                double arg1 = ParseExpression();
+                double result;
+
+                if (func.ToLower() == "sqrt")
+                {
+                    result = Math.Sqrt(arg1);
+                }
+                else if (func.ToLower() == "sin")
+                {
+                    result = Math.Sin(arg1);
+                }
+                else if (func.ToLower() == "cos")
+                {
+                    result = Math.Cos(arg1);
+                }
+                else if (func.ToLower() == "tan")
+                {
+                    result = Math.Tan(arg1);
+                }
+                else if (func.ToLower() == "log")
+                {
+                    result = Math.Log(arg1); 
+                }
+                else if (func.ToLower() == "abs")
+                {
+                    result = Math.Abs(arg1);
+                }
+                else if (func.ToLower() == "pow")
+                {
+                    if (!Match(',')) throw new Exception("Expected ',' between pow arguments");
+                    double arg2 = ParseExpression();
+                    result = Math.Pow(arg1, arg2);
+                }
+                else
+                {
+                    throw new Exception($"Unknown function '{func}'");
+                }
+
+                if (!Match(')')) throw new Exception("Expected ')' after function arguments");
+
+                return sign * result;
+            }
+
             return sign * ParseNumber();
         }
 
@@ -152,6 +199,24 @@ class Program
                 return true;
             }
             return false;
+        }
+
+        private char Peek()
+        {
+            SkipWhitespace();
+            return pos < text.Length ? text[pos] : '\0';
+        }
+
+        private string ParseIdentifier()
+        {
+            SkipWhitespace();
+            int start = pos;
+            while (pos < text.Length && char.IsLetter(text[pos]))
+            {
+                pos++;
+            }
+            if (start == pos) throw new Exception("Expected identifier");
+            return text.Substring(start, pos - start);
         }
     }
 }
